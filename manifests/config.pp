@@ -8,6 +8,9 @@ class monit::config {
   validate_absolute_path($monit::conf_file)
   file { $monit::conf_file:
     ensure  => present,
+    mode    => '0600',
+    owner   => 'root',
+    group   => 'root',
     content => template('monit/conf_file.erb'),
   }
   validate_absolute_path($monit::conf_dir)
