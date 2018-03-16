@@ -31,7 +31,7 @@ module Puppet::Parser::Functions
     defined?(TEST_TYPES) or TEST_TYPES = {
       'DIRECTORY'   => [],
       'FIFO'        => [],
-      'FILE'        => [],
+      'FILE'        => ['PERMISSION', 'CHECKSUM', 'UID', 'GID'],
       'FILESYSTEM'  => [
         'FSFLAGS', 'SPACE', 'INODE', 'PERM', 'PERMISSION'
       ],
@@ -113,6 +113,24 @@ module Puppet::Parser::Functions
         end
         test['condition'] = "FAILED #{test['type']} #{test['value']}"
 
+      # CHECKSUM TESTING
+      elsif ['CHECKSUM'].include? test['type']
+        test['condition'] = "FAILED #{test['type']}"
+
+      # UID TESTING
+      elsif ['UID'].include? test['type']
+        unless test.key? 'value'
+          raise Puppet::ParseError, exception_prefix + "'value' is mandatory"
+        end
+        test['condition'] = "FAILED #{test['type']} #{test['value']}"
+
+      # GID TESTING
+      elsif ['GID'].include? test['type']
+        unless test.key? 'value'
+          raise Puppet::ParseError, exception_prefix + "'value' is mandatory"
+        end
+        test['condition'] = "FAILED #{test['type']} #{test['value']}"
+
       # STATUS TESTING
       elsif test['type'] == 'STATUS'
         test['operator'] = test['operator'].upcase
@@ -125,7 +143,7 @@ module Puppet::Parser::Functions
         end
         condition = 'FAILED'
         if test.key? 'unixsocket'
-          condition += "UNIXSOCKET #{test['unixsocket']}"
+          condition += " UNIXSOCKET #{test['unixsocket']}"
         else
           if test.key? 'host'
             condition += " HOST #{test['host']} PORT #{test['port']}"
